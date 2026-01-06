@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trigonometrie - Sinus, Kosinus, Tangens</title>
+<style>
+:root {
+  --sin: #e74c3c; --cos: #3498db; --tan: #e67e22;
+  --param-a: #9b59b6; --param-b: #2ecc71; --param-c: #1abc9c; --param-d: #f1c40f;
+  --bg: #1a1a2e; --bg2: #16213e; --text: #eee; --accent: #0f3460;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+.presentation { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; width: 100%; height: 100%; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 40px; opacity: 0; transition: opacity 0.5s; }
+.slide.active { display: flex; opacity: 1; }
+.slide h1 { font-size: 2.8em; margin-bottom: 20px; text-align: center; }
+.slide h2 { font-size: 2em; margin-bottom: 15px; color: var(--cos); }
+.slide h3 { font-size: 1.4em; margin: 10px 0; color: var(--param-c); }
+.slide p, .slide li { font-size: 1.2em; line-height: 1.6; }
+.slide ul { list-style: none; }
+.slide ul li::before { content: "▸ "; color: var(--cos); }
+.content { max-width: 1200px; width: 100%; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.formula { background: var(--bg2); padding: 20px; border-radius: 10px; font-size: 1.4em; text-align: center; margin: 15px 0; border-left: 4px solid var(--cos); }
+.formula-large { font-size: 1.8em; }
+.sin { color: var(--sin); font-weight: bold; }
+.cos { color: var(--cos); font-weight: bold; }
+.tan { color: var(--tan); font-weight: bold; }
+.pa { color: var(--param-a); font-weight: bold; }
+.pb { color: var(--param-b); font-weight: bold; }
+.pc { color: var(--param-c); font-weight: bold; }
+.pd { color: var(--param-d); font-weight: bold; }
+canvas { border-radius: 10px; background: var(--bg2); }
+table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+th, td { padding: 12px; text-align: center; border: 1px solid #444; }
+th { background: var(--accent); }
+.nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 100; }
+.nav button { background: var(--accent); border: none; color: var(--text); padding: 12px 25px; border-radius: 25px; cursor: pointer; font-size: 1em; transition: all 0.3s; }
+.nav button:hover { background: var(--cos); transform: scale(1.05); }
+.progress { position: fixed; top: 0; left: 0; height: 4px; background: var(--cos); transition: width 0.3s; }
+.slide-num { position: fixed; top: 15px; right: 20px; font-size: 1em; opacity: 0.7; }
+.highlight-box { background: linear-gradient(135deg, var(--bg2), var(--accent)); padding: 25px; border-radius: 15px; margin: 20px 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.card { background: var(--bg2); padding: 20px; border-radius: 10px; text-align: center; }
+.card h4 { color: var(--cos); margin-bottom: 10px; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.animate { animation: fadeInUp 0.6s ease forwards; }
+.delay-1 { animation-delay: 0.2s; opacity: 0; }
+.delay-2 { animation-delay: 0.4s; opacity: 0; }
+.delay-3 { animation-delay: 0.6s; opacity: 0; }
+.delay-4 { animation-delay: 0.8s; opacity: 0; }
+.title-slide { background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 50%, var(--accent) 100%); }
+.title-slide h1 { font-size: 3.5em; background: linear-gradient(90deg, var(--sin), var(--cos), var(--tan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.subtitle { font-size: 1.5em; opacity: 0.8; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="slide-num" id="slideNum"></div>
+<div class="presentation" id="presentation">
+
+<!-- Folie 1: Titel -->
+<div class="slide title-slide active">
+<canvas id="bgCanvas" width="400" height="400" style="position:absolute; opacity:0.3;"></canvas>
+<h1 class="animate">Sinus, Kosinus & Tangens</h1>
+<p class="subtitle animate delay-1">Vollständige Einführung in die Trigonometrie</p>
+<p class="animate delay-2" style="margin-top:30px; opacity:0.6;">Nutze ← → Pfeiltasten oder klicke zur Navigation</p>
+</div>
+
+<!-- Folie 2: Einheitskreis Einführung -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Der Einheitskreis</h2>
+<div class="two-col">
+<div>
+<p class="animate delay-1">Der <strong>Einheitskreis</strong> ist ein Kreis mit:</p>
+<ul class="animate delay-2">
+<li>Mittelpunkt im <strong>Ursprung (0, 0)</strong></li>
+<li>Radius <strong>r = 1</strong></li>
+<li>Gleichung: <strong>x² + y² = 1</strong></li>
+</ul>
+<div class="formula animate delay-3">
+Punkt P auf dem Kreis: P(<span class="cos">cos α</span>, <span class="sin">sin α</span>)
+</div>
+<p class="animate delay-4">Der Winkel α wird vom positiven x-Achse gegen den Uhrzeigersinn gemessen.</p>
+</div>
+<canvas id="unitCircle1" width="400" height="400" class="animate delay-2"></canvas>
+</div>
+</div>
+</div>
+
+<!-- Folie 3: Sin und Cos als Koordinaten -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Sinus und Kosinus als Koordinaten</h2>
+<div class="two-col">
+<canvas id="unitCircle2" width="400" height="400" class="animate"></canvas>
+<div>
+<div class="highlight-box animate delay-1">
+<h3><span class="cos">Kosinus α</span> = x-Koordinate</h3>
+<p>Horizontaler Abstand des Punktes P zur y-Achse</p>
+</div>
+<div class="highlight-box animate delay-2">
+<h3><span class="sin">Sinus α</span> = y-Koordinate</h3>
+<p>Vertikaler Abstand des Punktes P zur x-Achse</p>
+</div>
+<div class="formula animate delay-3">
+<span class="sin">sin²α</span> + <span class="cos">cos²α</span> = 1
+</div>
+<p class="animate delay-4"><em>Trigonometrischer Pythagoras!</em></p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 4: Tangens am Einheitskreis -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Tangens am Einheitskreis</h2>
+<div class="two-col">
+<div>
+<div class="formula animate delay-1">
+<span class="tan">tan α</span> = <span class="sin">sin α</span> / <span class="cos">cos α</span>
+</div>
+<h3 class="animate delay-2">Geometrische Konstruktion:</h3>
+<ul class="animate delay-3">
+<li>Zeichne die Tangente an x = 1 (senkrecht)</li>
+<li>Verlängere den Radius durch P bis zur Tangente</li>
+<li>Der Schnittpunkt Q hat y-Koordinate = <span class="tan">tan α</span></li>
+</ul>
+<p class="animate delay-4" style="margin-top:20px;">⚠️ Definiert nur für <span class="cos">cos α</span> ≠ 0</p>
+</div>
+<canvas id="unitCircle3" width="400" height="400" class="animate delay-1"></canvas>
+</div>
+</div>
+</div>
+
+<!-- Folie 5: Gradmaß und Bogenmaß -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Gradmaß ↔ Bogenmaß</h2>
+<div class="two-col">
+<div>
+<div class="formula animate delay-1">360° ↔ 2π</div>
+<div class="formula animate delay-2">180° ↔ π</div>
+<h3 class="animate delay-3">Umrechnungsformeln:</h3>
+<div class="formula animate delay-4">
+Bogenmaß: x<sub>rad</sub> = (α° / 180°) · π
+</div>
+<div class="formula animate delay-4">
+Gradmaß: α° = 180° · (x<sub>rad</sub> / π)
+</div>
+</div>
+<div class="animate delay-2">
+<table>
+<tr><th>Grad</th><th>Bogenmaß</th><th>sin</th><th>cos</th></tr>
+<tr><td>0°</td><td>0</td><td>0</td><td>1</td></tr>
+<tr><td>30°</td><td>π/6</td><td>1/2</td><td>√3/2</td></tr>
+<tr><td>45°</td><td>π/4</td><td>√2/2</td><td>√2/2</td></tr>
+<tr><td>60°</td><td>π/3</td><td>√3/2</td><td>1/2</td></tr>
+<tr><td>90°</td><td>π/2</td><td>1</td><td>0</td></tr>
+<tr><td>180°</td><td>π</td><td>0</td><td>-1</td></tr>
+<tr><td>270°</td><td>3π/2</td><td>-1</td><td>0</td></tr>
+<tr><td>360°</td><td>2π</td><td>0</td><td>1</td></tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 6: Quadranten und Vorzeichen -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Quadranten und Vorzeichen</h2>
+<div class="two-col">
+<canvas id="quadrants" width="400" height="400" class="animate"></canvas>
+<div>
+<div class="grid-3 animate delay-1" style="grid-template-columns: 1fr 1fr;">
+<div class="card">
+<h4>I. Quadrant (0° - 90°)</h4>
+<p><span class="sin">sin +</span> | <span class="cos">cos +</span> | <span class="tan">tan +</span></p>
+</div>
+<div class="card">
+<h4>II. Quadrant (90° - 180°)</h4>
+<p><span class="sin">sin +</span> | <span class="cos">cos −</span> | <span class="tan">tan −</span></p>
+</div>
+<div class="card">
+<h4>III. Quadrant (180° - 270°)</h4>
+<p><span class="sin">sin −</span> | <span class="cos">cos −</span> | <span class="tan">tan +</span></p>
+</div>
+<div class="card">
+<h4>IV. Quadrant (270° - 360°)</h4>
+<p><span class="sin">sin −</span> | <span class="cos">cos +</span> | <span class="tan">tan −</span></p>
+</div>
+</div>
+<div class="highlight-box animate delay-2">
+<p><strong>Merkhilfe:</strong> "Alle Studenten Trinken Cola"</p>
+<p>I: Alle positiv | II: Sin+ | III: Tan+ | IV: Cos+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 7: Sinusfunktion Definition -->
+<div class="slide">
+<div class="content">
+<h2 class="animate"><span class="sin">Sinusfunktion</span> f(x) = sin x</h2>
+<div class="two-col">
+<div>
+<div class="highlight-box animate delay-1">
+<p><strong>Definitionsbereich:</strong> D = ℝ</p>
+<p><strong>Wertebereich:</strong> W = [-1, 1]</p>
+<p><strong>Periode:</strong> 2π (oder 360°)</p>
+</div>
+<ul class="animate delay-2">
+<li><strong>Symmetrie:</strong> ungerade Funktion</li>
+<li><span class="sin">sin(-x) = -sin x</span></li>
+<li>Punktsymmetrisch zum Ursprung</li>
+</ul>
+<div class="formula animate delay-3">
+Nullstellen: x = k · π, k ∈ ℤ
+</div>
+<div class="animate delay-4">
+<p><strong>Extrema:</strong></p>
+<p>Maximum: x = π/2 + 2kπ → f(x) = 1</p>
+<p>Minimum: x = 3π/2 + 2kπ → f(x) = -1</p>
+</div>
+</div>
+<canvas id="sinGraph" width="500" height="350" class="animate delay-1"></canvas>
+</div>
+</div>
+</div>
+
+<!-- Folie 8: Sinus aus Einheitskreis -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Vom Einheitskreis zum <span class="sin">Sinusgraph</span></h2>
+<div class="two-col">
+<canvas id="sinFromCircle" width="350" height="350" class="animate"></canvas>
+<div style="flex-grow: 1;">
+<canvas id="sinWave" width="500" height="350" class="animate delay-1"></canvas>
+</div>
+</div>
+<p class="animate delay-2" style="text-align: center; margin-top: 20px;">
+Die <span class="sin">y-Koordinate</span> des wandernden Punktes P wird über dem Winkel aufgetragen → <span class="sin">Sinuskurve</span>
+</p>
+</div>
+</div>
+
+<!-- Folie 9: Kosinusfunktion Definition -->
+<div class="slide">
+<div class="content">
+<h2 class="animate"><span class="cos">Kosinusfunktion</span> g(x) = cos x</h2>
+<div class="two-col">
+<canvas id="cosGraph" width="500" height="350" class="animate"></canvas>
+<div>
+<div class="highlight-box animate delay-1">
+<p><strong>Definitionsbereich:</strong> D = ℝ</p>
+<p><strong>Wertebereich:</strong> W = [-1, 1]</p>
+<p><strong>Periode:</strong> 2π (oder 360°)</p>
+</div>
+<ul class="animate delay-2">
+<li><strong>Symmetrie:</strong> gerade Funktion</li>
+<li><span class="cos">cos(-x) = cos x</span></li>
+<li>Achsensymmetrisch zur y-Achse</li>
+</ul>
+<div class="formula animate delay-3">
+Nullstellen: x = π/2 + k · π, k ∈ ℤ
+</div>
+<div class="animate delay-4">
+<p><strong>Extrema:</strong></p>
+<p>Maximum: x = 2kπ → f(x) = 1</p>
+<p>Minimum: x = π + 2kπ → f(x) = -1</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 10: Zusammenhang Sin/Cos -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Zusammenhang <span class="sin">Sinus</span> und <span class="cos">Kosinus</span></h2>
+<canvas id="sinCosCompare" width="800" height="300" class="animate delay-1"></canvas>
+<div class="grid-3 animate delay-2" style="margin-top: 30px;">
+<div class="card">
+<h4>Pythagoras</h4>
+<p class="formula"><span class="sin">sin²x</span> + <span class="cos">cos²x</span> = 1</p>
+</div>
+<div class="card">
+<h4>Phasenverschiebung</h4>
+<p class="formula"><span class="cos">cos x</span> = <span class="sin">sin(x + π/2)</span></p>
+</div>
+<div class="card">
+<h4>Umkehrung</h4>
+<p class="formula"><span class="sin">sin x</span> = <span class="cos">cos(x - π/2)</span></p>
+</div>
+</div>
+<p class="animate delay-3" style="text-align: center; margin-top: 20px;">
+Der <span class="cos">Kosinus</span> ist der um π/2 nach links verschobene <span class="sin">Sinus</span>!
+</p>
+</div>
+</div>
+
+<!-- Folie 11: Tangensfunktion -->
+<div class="slide">
+<div class="content">
+<h2 class="animate"><span class="tan">Tangensfunktion</span> h(x) = tan x</h2>
+<div class="two-col">
+<div>
+<div class="formula animate delay-1">
+<span class="tan">tan x</span> = <span class="sin">sin x</span> / <span class="cos">cos x</span>
+</div>
+<div class="highlight-box animate delay-2">
+<p><strong>Definitionsbereich:</strong> D = ℝ \ {π/2 + kπ | k ∈ ℤ}</p>
+<p><strong>Wertebereich:</strong> W = ℝ (alle reellen Zahlen!)</p>
+<p><strong>Periode:</strong> π (halb so lang!)</p>
+</div>
+<ul class="animate delay-3">
+<li><strong>Asymptoten:</strong> x = π/2 + kπ</li>
+<li><strong>Nullstellen:</strong> x = kπ</li>
+<li><strong>Symmetrie:</strong> ungerade (<span class="tan">tan(-x) = -tan x</span>)</li>
+<li>Streng monoton steigend zwischen Asymptoten</li>
+</ul>
+</div>
+<canvas id="tanGraph" width="450" height="350" class="animate delay-1"></canvas>
+</div>
+</div>
+</div>
+
+<!-- Folie 12: Vergleichstabelle -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Vergleich: <span class="sin">sin</span>, <span class="cos">cos</span>, <span class="tan">tan</span></h2>
+<table class="animate delay-1">
+<tr>
+<th>Eigenschaft</th>
+<th><span class="sin">Sinus</span></th>
+<th><span class="cos">Kosinus</span></th>
+<th><span class="tan">Tangens</span></th>
+</tr>
+<tr><td><strong>Periode</strong></td><td>2π</td><td>2π</td><td><strong>π</strong></td></tr>
+<tr><td><strong>Wertebereich</strong></td><td>[-1, 1]</td><td>[-1, 1]</td><td><strong>ℝ</strong></td></tr>
+<tr><td><strong>f(0)</strong></td><td>0</td><td><strong>1</strong></td><td>0</td></tr>
+<tr><td><strong>Asymptoten</strong></td><td>—</td><td>—</td><td><strong>π/2 + kπ</strong></td></tr>
+<tr><td><strong>Symmetrie</strong></td><td>ungerade</td><td>gerade</td><td>ungerade</td></tr>
+<tr><td><strong>Nullstellen</strong></td><td>kπ</td><td>π/2 + kπ</td><td>kπ</td></tr>
+</table>
+<p class="animate delay-2" style="text-align: center; margin-top: 20px; font-size: 1.3em;">
+Alle k ∈ ℤ (ganze Zahlen: ..., -2, -1, 0, 1, 2, ...)
+</p>
+</div>
+</div>
+
+<!-- Folie 13: Allgemeine Sinusfunktion -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Allgemeine <span class="sin">Sinusfunktion</span></h2>
+<div class="formula formula-large animate delay-1">
+f(x) = <span class="pa">a</span> · sin(<span class="pb">b</span>(x – <span class="pc">c</span>)) + <span class="pd">d</span>
+</div>
+<div class="grid-3 animate delay-2" style="grid-template-columns: repeat(4, 1fr); margin-top: 30px;">
+<div class="card" style="border-top: 4px solid var(--param-a);">
+<h4><span class="pa">a</span> – Amplitude</h4>
+<p>|<span class="pa">a</span>| = Amplitude</p>
+<p>Streckung in y-Richtung</p>
+<p><span class="pa">a</span> &lt; 0 → Spiegelung</p>
+</div>
+<div class="card" style="border-top: 4px solid var(--param-b);">
+<h4><span class="pb">b</span> – Periodenfaktor</h4>
+<p>T = 2π / |<span class="pb">b</span>|</p>
+<p>Streckung in x-Richtung</p>
+<p>Größer → schneller</p>
+</div>
+<div class="card" style="border-top: 4px solid var(--param-c);">
+<h4><span class="pc">c</span> – Phasenverschiebung</h4>
+<p>Horizontale Verschiebung</p>
+<p><span class="pc">c</span> &gt; 0 → nach rechts</p>
+<p><span class="pc">c</span> &lt; 0 → nach links</p>
+</div>
+<div class="card" style="border-top: 4px solid var(--param-d);">
+<h4><span class="pd">d</span> – Vertikalverschiebung</h4>
+<p>Mittellinie: y = <span class="pd">d</span></p>
+<p><span class="pd">d</span> &gt; 0 → nach oben</p>
+<p><span class="pd">d</span> &lt; 0 → nach unten</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 14: Parameter a - Amplitude -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Parameter <span class="pa">a</span> – Amplitude</h2>
+<div class="two-col">
+<canvas id="paramA" width="500" height="350" class="animate"></canvas>
+<div>
+<div class="formula animate delay-1">
+Amplitude A = |<span class="pa">a</span>| = (y<sub>max</sub> − y<sub>min</sub>) / 2
+</div>
+<ul class="animate delay-2">
+<li><span class="pa">a = 1</span>: Standardamplitude</li>
+<li><span class="pa">a = 2</span>: Doppelte Amplitude</li>
+<li><span class="pa">a = 0.5</span>: Halbe Amplitude</li>
+<li><span class="pa">a &lt; 0</span>: Spiegelung an x-Achse</li>
+</ul>
+<div class="highlight-box animate delay-3">
+<p><strong>Aus dem Graphen:</strong></p>
+<p>Lies Hochpunkt (y<sub>max</sub>) und Tiefpunkt (y<sub>min</sub>) ab</p>
+<p>|<span class="pa">a</span>| = (y<sub>max</sub> − y<sub>min</sub>) / 2</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 15: Parameter b - Periode -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Parameter <span class="pb">b</span> – Periodenfaktor</h2>
+<div class="two-col">
+<div>
+<div class="formula animate delay-1">
+Periode T = 2π / |<span class="pb">b</span>|
+</div>
+<div class="formula animate delay-2">
+<span class="pb">b</span> = 2π / T
+</div>
+<ul class="animate delay-3">
+<li><span class="pb">b = 1</span>: T = 2π (Standard)</li>
+<li><span class="pb">b = 2</span>: T = π (doppelt so schnell)</li>
+<li><span class="pb">b = 0.5</span>: T = 4π (halb so schnell)</li>
+</ul>
+<div class="highlight-box animate delay-4">
+<p><strong>Aus dem Graphen:</strong></p>
+<p>Miss Abstand zwischen zwei gleichen Punkten</p>
+<p>(z.B. Hochpunkt zu Hochpunkt)</p>
+</div>
+</div>
+<canvas id="paramB" width="500" height="350" class="animate delay-1"></canvas>
+</div>
+</div>
+</div>
+
+<!-- Folie 16: Parameter c - Phasenverschiebung -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Parameter <span class="pc">c</span> – Phasenverschiebung</h2>
+<div class="two-col">
+<canvas id="paramC" width="500" height="350" class="animate"></canvas>
+<div>
+<div class="formula animate delay-1">
+f(x) = sin(<span class="pb">b</span>(x – <span class="pc">c</span>))
+</div>
+<ul class="animate delay-2">
+<li><span class="pc">c &gt; 0</span>: Graph nach rechts verschoben</li>
+<li><span class="pc">c &lt; 0</span>: Graph nach links verschoben</li>
+<li><span class="pc">c = π/2</span>: sin wird zu cos!</li>
+</ul>
+<div class="highlight-box animate delay-3">
+<p><strong>Vorsicht beim Ablesen!</strong></p>
+<p>Bei f(x) = sin(<span class="pb">b</span>x – φ) gilt:</p>
+<p><span class="pc">c</span> = φ / <span class="pb">b</span></p>
+</div>
+<p class="animate delay-4"><strong>Tipp:</strong> Suche eine Nullstelle mit positiver Steigung – dort ist x = <span class="pc">c</span></p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 17: Parameter d - Vertikale Verschiebung -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Parameter <span class="pd">d</span> – Vertikale Verschiebung</h2>
+<div class="two-col">
+<div>
+<div class="formula animate delay-1">
+Mittellinie: y = <span class="pd">d</span>
+</div>
+<div class="formula animate delay-2">
+<span class="pd">d</span> = (y<sub>max</sub> + y<sub>min</sub>) / 2
+</div>
+<ul class="animate delay-3">
+<li><span class="pd">d &gt; 0</span>: Graph nach oben verschoben</li>
+<li><span class="pd">d &lt; 0</span>: Graph nach unten verschoben</li>
+<li>Graph oszilliert um die Mittellinie</li>
+</ul>
+<div class="highlight-box animate delay-4">
+<p><strong>Wertebereich mit d:</strong></p>
+<p>W = [<span class="pd">d</span> − |<span class="pa">a</span>|, <span class="pd">d</span> + |<span class="pa">a</span>|]</p>
+</div>
+</div>
+<canvas id="paramD" width="500" height="350" class="animate delay-1"></canvas>
+</div>
+</div>
+</div>
+
+<!-- Folie 18: Alle Parameter zusammen -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Alle Parameter im Überblick</h2>
+<canvas id="allParams" width="800" height="350" class="animate delay-1"></canvas>
+<div class="formula formula-large animate delay-2" style="margin-top: 20px;">
+f(x) = <span class="pa">2</span> · sin(<span class="pb">2</span>(x – <span class="pc">π/4</span>)) + <span class="pd">1</span>
+</div>
+<div class="grid-3 animate delay-3" style="grid-template-columns: repeat(4, 1fr);">
+<div class="card"><p><span class="pa">a = 2</span> → Amplitude 2</p></div>
+<div class="card"><p><span class="pb">b = 2</span> → Periode π</p></div>
+<div class="card"><p><span class="pc">c = π/4</span> → Rechtsverschiebung</p></div>
+<div class="card"><p><span class="pd">d = 1</span> → Mittellinie y=1</p></div>
+</div>
+</div>
+</div>
+
+<!-- Folie 19: Parameter bestimmen - Schritt 1 -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Parameter aus Graph bestimmen</h2>
+<h3 class="animate delay-1">Schritt 1: <span class="pd">d</span> und <span class="pa">a</span> finden</h3>
+<div class="two-col">
+<canvas id="findParams1" width="450" height="300" class="animate delay-2"></canvas>
+<div>
+<ol class="animate delay-3" style="list-style: decimal; padding-left: 20px;">
+<li style="margin: 15px 0;">Lies <strong>Hochpunkt</strong> y<sub>max</sub> und <strong>Tiefpunkt</strong> y<sub>min</sub> ab</li>
+<li style="margin: 15px 0;">Berechne <strong>Mittellinie</strong>:
+<div class="formula"><span class="pd">d</span> = (y<sub>max</sub> + y<sub>min</sub>) / 2</div>
+</li>
+<li style="margin: 15px 0;">Berechne <strong>Amplitude</strong>:
+<div class="formula">|<span class="pa">a</span>| = (y<sub>max</sub> − y<sub>min</sub>) / 2</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 20: Parameter bestimmen - Schritt 2 -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Parameter aus Graph bestimmen</h2>
+<h3 class="animate delay-1">Schritt 2: <span class="pb">b</span> (Periode) finden</h3>
+<div class="two-col">
+<div>
+<ol class="animate delay-2" style="list-style: decimal; padding-left: 20px;">
+<li style="margin: 15px 0;">Finde zwei <strong>gleiche markante Punkte</strong>
+<p style="font-size: 0.9em; opacity: 0.8;">z.B. zwei Hochpunkte oder zwei Nullstellen mit gleicher Steigung</p>
+</li>
+<li style="margin: 15px 0;">Miss den <strong>horizontalen Abstand T</strong> (= Periode)</li>
+<li style="margin: 15px 0;">Berechne:
+<div class="formula"><span class="pb">b</span> = 2π / T</div>
+</li>
+</ol>
+<div class="highlight-box animate delay-3">
+<p><strong>Beispiel:</strong> Hochpunkte bei x = 1 und x = 5</p>
+<p>T = 5 − 1 = 4 → <span class="pb">b</span> = 2π / 4 = π/2</p>
+</div>
+</div>
+<canvas id="findParams2" width="450" height="300" class="animate delay-1"></canvas>
+</div>
+</div>
+</div>
+
+<!-- Folie 21: Parameter bestimmen - Schritt 3 -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Parameter aus Graph bestimmen</h2>
+<h3 class="animate delay-1">Schritt 3: <span class="pc">c</span> (Phasenverschiebung) finden</h3>
+<div class="two-col">
+<canvas id="findParams3" width="450" height="300" class="animate"></canvas>
+<div>
+<div class="highlight-box animate delay-2">
+<h4>Bei <span class="sin">Sinus</span>-Ansatz:</h4>
+<p>Suche Nullstelle mit <strong>positiver Steigung</strong></p>
+<p>→ Dort ist x = <span class="pc">c</span></p>
+</div>
+<div class="highlight-box animate delay-3">
+<h4>Bei <span class="cos">Kosinus</span>-Ansatz:</h4>
+<p>Suche <strong>Hochpunkt</strong> (wenn a &gt; 0)</p>
+<p>oder <strong>Tiefpunkt</strong> (wenn a &lt; 0)</p>
+<p>→ Dort ist x = <span class="pc">c</span></p>
+</div>
+<p class="animate delay-4"><strong>Tipp:</strong> Wähle die Form (sin/cos), bei der <span class="pc">c</span> am einfachsten abzulesen ist!</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 22: Tangens Parameter -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Allgemeine <span class="tan">Tangensfunktion</span></h2>
+<div class="formula formula-large animate delay-1">
+h(x) = <span class="pa">a</span> · tan(<span class="pb">b</span>(x – <span class="pc">c</span>)) + <span class="pd">d</span>
+</div>
+<div class="two-col" style="margin-top: 30px;">
+<canvas id="tanParams" width="450" height="300" class="animate delay-2"></canvas>
+<div>
+<div class="highlight-box animate delay-3">
+<p><strong>Periode:</strong> T = π / |<span class="pb">b</span>| (halb so lang wie sin/cos!)</p>
+</div>
+<ul class="animate delay-4">
+<li><span class="pa">a</span>: Steilheit (keine Amplitude, da W = ℝ)</li>
+<li><span class="pb">b</span>: Abstand der Asymptoten = π/|<span class="pb">b</span>|</li>
+<li><span class="pc">c</span>: Verschiebung der Asymptoten</li>
+<li><span class="pd">d</span>: Vertikale Verschiebung der Nullstellen</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 23: Wichtige Identitäten -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Wichtige Identitäten</h2>
+<div class="grid-3 animate delay-1" style="grid-template-columns: 1fr 1fr;">
+<div class="card">
+<h4>Trigonometrischer Pythagoras</h4>
+<div class="formula"><span class="sin">sin²x</span> + <span class="cos">cos²x</span> = 1</div>
+</div>
+<div class="card">
+<h4>Tangens-Definition</h4>
+<div class="formula"><span class="tan">tan x</span> = <span class="sin">sin x</span> / <span class="cos">cos x</span></div>
+</div>
+<div class="card">
+<h4>Phasenverschiebung (cos→sin)</h4>
+<div class="formula"><span class="cos">cos x</span> = <span class="sin">sin(x + π/2)</span></div>
+</div>
+<div class="card">
+<h4>Phasenverschiebung (sin→cos)</h4>
+<div class="formula"><span class="sin">sin x</span> = <span class="cos">cos(x − π/2)</span></div>
+</div>
+<div class="card">
+<h4>Ungerade Funktionen</h4>
+<div class="formula"><span class="sin">sin(−x)</span> = −<span class="sin">sin x</span></div>
+<div class="formula"><span class="tan">tan(−x)</span> = −<span class="tan">tan x</span></div>
+</div>
+<div class="card">
+<h4>Gerade Funktion</h4>
+<div class="formula"><span class="cos">cos(−x)</span> = <span class="cos">cos x</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 24: Pythagoras visualisiert -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Trigonometrischer Pythagoras visualisiert</h2>
+<div class="two-col">
+<canvas id="pythagoras" width="400" height="400" class="animate"></canvas>
+<div>
+<div class="formula formula-large animate delay-1">
+<span class="sin">sin²α</span> + <span class="cos">cos²α</span> = 1
+</div>
+<p class="animate delay-2">Im Einheitskreis bilden:</p>
+<ul class="animate delay-3">
+<li><span class="cos">cos α</span> = horizontale Kathete</li>
+<li><span class="sin">sin α</span> = vertikale Kathete</li>
+<li>Radius 1 = Hypotenuse</li>
+</ul>
+<div class="highlight-box animate delay-4">
+<p>Nach dem Satz des Pythagoras gilt:</p>
+<p><span class="cos">cos²α</span> + <span class="sin">sin²α</span> = 1²</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 25: Praktische Anwendungen -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Praktische Anwendungen</h2>
+<div class="grid-3 animate delay-1">
+<div class="card">
+<h4>🎵 Schallwellen</h4>
+<p>Töne sind Sinusschwingungen</p>
+<p>Frequenz = Tonhöhe</p>
+<p>Amplitude = Lautstärke</p>
+</div>
+<div class="card">
+<h4>🌊 Wasserwellen</h4>
+<p>Periodische Bewegung</p>
+<p>Wellenlänge = Periode</p>
+<p>Wellenhöhe = Amplitude</p>
+</div>
+<div class="card">
+<h4>⚡ Wechselstrom</h4>
+<p>U(t) = U₀ · sin(ωt)</p>
+<p>50 Hz in Europa</p>
+<p>230V Effektivspannung</p>
+</div>
+</div>
+<div class="grid-3 animate delay-2" style="margin-top: 20px;">
+<div class="card">
+<h4>🎡 Riesenrad</h4>
+<p>Höhe = Sinusfunktion</p>
+<p>Radius = Amplitude</p>
+<p>Umdrehung = Periode</p>
+</div>
+<div class="card">
+<h4>📡 Funk & Radio</h4>
+<p>Elektromagnetische Wellen</p>
+<p>Modulation von Amplitude</p>
+<p>oder Frequenz</p>
+</div>
+<div class="card">
+<h4>🏗️ Architektur</h4>
+<p>Brückenbögen</p>
+<p>Statik-Berechnungen</p>
+<p>Wellenförmige Dächer</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 26: Aufgabentypen -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Typische Aufgabentypen</h2>
+<div class="grid-3 animate delay-1" style="grid-template-columns: 1fr 1fr;">
+<div class="highlight-box">
+<h4>Einheitskreis & Grundlagen</h4>
+<ul>
+<li>Punkte für gegebene Winkel eintragen</li>
+<li>sin α, cos α, tan α ablesen</li>
+<li>Winkel umrechnen (Grad ↔ Bogenmaß)</li>
+<li>Quadranten und Vorzeichen bestimmen</li>
+</ul>
+</div>
+<div class="highlight-box">
+<h4>Graphen & Funktionen</h4>
+<ul>
+<li>Grundgraphen zeichnen</li>
+<li>Auswirkungen von a, b, c, d beschreiben</li>
+<li>Aus Gleichung → Graph skizzieren</li>
+<li>Aus Graph → Gleichung bestimmen</li>
+</ul>
+</div>
+<div class="highlight-box">
+<h4>Rechnerische Aufgaben</h4>
+<ul>
+<li>Nullstellen berechnen</li>
+<li>Extrempunkte finden</li>
+<li>Monotonie bestimmen</li>
+<li>Gleichungen lösen</li>
+</ul>
+</div>
+<div class="highlight-box">
+<h4>Anwendungsaufgaben</h4>
+<ul>
+<li>Schwingungen modellieren</li>
+<li>Periodische Vorgänge beschreiben</li>
+<li>Parameter aus Sachkontext bestimmen</li>
+<li>Werte zu bestimmten Zeitpunkten</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 27: Tipps und Tricks -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Tipps für die Klausur</h2>
+<div class="grid-3 animate delay-1" style="grid-template-columns: 1fr 1fr 1fr;">
+<div class="card">
+<h4>📐 Einheitskreis zeichnen</h4>
+<p>Bei Unsicherheit immer den Einheitskreis skizzieren – er hilft bei allen Grundaufgaben!</p>
+</div>
+<div class="card">
+<h4>🔢 Besondere Winkel</h4>
+<p>0°, 30°, 45°, 60°, 90° auswendig lernen – sie kommen ständig vor!</p>
+</div>
+<div class="card">
+<h4>✓ Vorzeichen prüfen</h4>
+<p>Quadrant bestimmen → Vorzeichen von sin, cos, tan ableiten</p>
+</div>
+</div>
+<div class="grid-3 animate delay-2" style="margin-top: 20px; grid-template-columns: 1fr 1fr 1fr;">
+<div class="card">
+<h4>📊 Graph skizzieren</h4>
+<p>Erst Mittellinie (d), dann Amplitude (a), dann Periode (2π/b) markieren</p>
+</div>
+<div class="card">
+<h4>🎯 Kontrolle</h4>
+<p>Setze x = 0 ein und prüfe, ob f(0) zum Graphen passt</p>
+</div>
+<div class="card">
+<h4>🔄 sin ↔ cos</h4>
+<p>Beide Formen sind äquivalent – wähle die einfachere!</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 28: Zusammenfassung -->
+<div class="slide">
+<div class="content">
+<h2 class="animate">Zusammenfassung</h2>
+<div class="two-col">
+<div class="animate delay-1">
+<h3>Das Wichtigste:</h3>
+<ul style="font-size: 1.1em;">
+<li><span class="sin">Sinus</span> und <span class="cos">Kosinus</span> entstehen aus dem <strong>Einheitskreis</strong></li>
+<li>Sie beschreiben <strong>periodische Oszillationen</strong></li>
+<li>Jede Funktion hat charakteristische Eigenschaften</li>
+<li>Mit <span class="pa">a</span>, <span class="pb">b</span>, <span class="pc">c</span>, <span class="pd">d</span> wird jeder Graph präzise beschrieben</li>
+</ul>
+</div>
+<div class="animate delay-2">
+<div class="formula formula-large">
+f(x) = <span class="pa">a</span>·sin(<span class="pb">b</span>(x−<span class="pc">c</span>)) + <span class="pd">d</span>
+</div>
+<table style="margin-top: 20px;">
+<tr><td><span class="pa">a</span></td><td>Amplitude</td><td>|<span class="pa">a</span>| = (max−min)/2</td></tr>
+<tr><td><span class="pb">b</span></td><td>Frequenz</td><td>T = 2π/|<span class="pb">b</span>|</td></tr>
+<tr><td><span class="pc">c</span></td><td>Phase</td><td>Verschiebung rechts</td></tr>
+<tr><td><span class="pd">d</span></td><td>Mittellinie</td><td><span class="pd">d</span> = (max+min)/2</td></tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Folie 29: Ende -->
+<div class="slide title-slide">
+<h1 class="animate" style="font-size: 3em;">Viel Erfolg!</h1>
+<p class="subtitle animate delay-1">Die Trigonometrie ist der Schlüssel zu Schwingungen, Wellen und vielem mehr.</p>
+<div class="animate delay-2" style="margin-top: 40px;">
+<p>🔁 Drücke <strong>Home</strong> um zum Anfang zu springen</p>
+<p>📖 Nutze diese Präsentation zum Wiederholen</p>
+</div>
+<canvas id="endCanvas" width="300" height="300" style="position: absolute; bottom: 20px; right: 20px; opacity: 0.5;"></canvas>
+</div>
+
+</div>
+
+<nav class="nav">
+<button onclick="prevSlide()">← Zurück</button>
+<button onclick="nextSlide()">Weiter →</button>
+</nav>
+
+<script>
+// Navigation
+let currentSlide = 0;
+const slides = document.querySelectorAll('.slide');
+const totalSlides = slides.length;
+const progressBar = document.getElementById('progress');
+const slideNum = document.getElementById('slideNum');
+
+function showSlide(n) {
+  slides[currentSlide].classList.remove('active');
+  currentSlide = (n + totalSlides) % totalSlides;
+  slides[currentSlide].classList.add('active');
+  progressBar.style.width = ((currentSlide + 1) / totalSlides * 100) + '%';
+  slideNum.textContent = (currentSlide + 1) + ' / ' + totalSlides;
+  initSlideAnimations();
+}
+
+function nextSlide() { showSlide(currentSlide + 1); }
+function prevSlide() { showSlide(currentSlide - 1); }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+  else if (e.key === 'ArrowLeft') prevSlide();
+  else if (e.key === 'Home') showSlide(0);
+  else if (e.key === 'End') showSlide(totalSlides - 1);
+});
+
+document.querySelector('.presentation').addEventListener('click', (e) => {
+  if (e.target.tagName !== 'BUTTON') nextSlide();
+});
+
+// Animation tracking
+let animationFrames = {};
+
+function initSlideAnimations() {
+  Object.values(animationFrames).forEach(id => cancelAnimationFrame(id));
+  animationFrames = {};
+  
+  const slide = slides[currentSlide];
+  const canvases = slide.querySelectorAll('canvas');
+  canvases.forEach(canvas => {
+    const id = canvas.id;
+    if (id && typeof window['draw_' + id] === 'function') {
+      window['draw_' + id](canvas);
+    }
+  });
+}
+
+// Drawing Functions
+function drawUnitCircle(ctx, cx, cy, r, angle, showSin=true, showCos=true, showTan=false) {
+  // Grid
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx - r - 30, cy); ctx.lineTo(cx + r + 50, cy);
+  ctx.moveTo(cx, cy - r - 30); ctx.lineTo(cx, cy + r + 30);
+  ctx.stroke();
+  
+  // Circle
+  ctx.strokeStyle = '#666';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.stroke();
+  
+  // Point P
+  const px = cx + r * Math.cos(angle);
+  const py = cy - r * Math.sin(angle);
+  
+  // Radius line
+  ctx.strokeStyle = '#888';
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(px, py);
+  ctx.stroke();
+  
+  // Cos line (horizontal)
+  if (showCos) {
+    ctx.strokeStyle = '#3498db';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(px, cy);
+    ctx.stroke();
+    ctx.fillStyle = '#3498db';
+    ctx.font = '14px sans-serif';
+    ctx.fillText('cos α', cx + (px - cx) / 2 - 15, cy + 20);
+  }
+  
+  // Sin line (vertical)
+  if (showSin) {
+    ctx.strokeStyle = '#e74c3c';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(px, cy);
+    ctx.lineTo(px, py);
+    ctx.stroke();
+    ctx.fillStyle = '#e74c3c';
+    ctx.font = '14px sans-serif';
+    ctx.fillText('sin α', px + 10, cy - (cy - py) / 2);
+  }
+  
+  // Tangent construction
+  if (showTan && Math.abs(Math.cos(angle)) > 0.1) {
+    const tanVal = Math.tan(angle);
+    const ty = cy - r * tanVal;
+    ctx.strokeStyle = '#e67e22';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + r, ty);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // Tangent line at x=1
+    ctx.strokeStyle = '#e67e22';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx + r, cy - r - 20);
+    ctx.lineTo(cx + r, cy + r + 20);
+    ctx.stroke();
+    
+    // Mark tan point
+    ctx.fillStyle = '#e67e22';
+    ctx.beginPath();
+    ctx.arc(cx + r, ty, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillText('tan α', cx + r + 10, ty);
+  }
+  
+  // Angle arc
+  ctx.strokeStyle = '#9b59b6';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 30, 0, -angle, angle > 0);
+  ctx.stroke();
+  ctx.fillStyle = '#9b59b6';
+  ctx.fillText('α', cx + 35, cy - 10);
+  
+  // Point P
+  ctx.fillStyle = '#2ecc71';
+  ctx.beginPath();
+  ctx.arc(px, py, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.fillText('P', px + 10, py - 10);
+}
+
+// Animated unit circles
+window.draw_bgCanvas = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let angle = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawUnitCircle(ctx, 200, 200, 150, angle, true, true, false);
+    angle += 0.02;
+    animationFrames.bgCanvas = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_unitCircle1 = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let angle = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawUnitCircle(ctx, 200, 200, 150, angle, true, true, false);
+    angle += 0.015;
+    animationFrames.unitCircle1 = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_unitCircle2 = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let angle = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawUnitCircle(ctx, 200, 200, 150, angle, true, true, false);
+    
+    // Show coordinates
+    ctx.fillStyle = '#fff';
+    ctx.font = '16px sans-serif';
+    ctx.fillText(`P(${Math.cos(angle).toFixed(2)}, ${Math.sin(angle).toFixed(2)})`, 10, 30);
+    
+    angle += 0.015;
+    animationFrames.unitCircle2 = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_unitCircle3 = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let angle = 0.5;
+  let dir = 0.01;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawUnitCircle(ctx, 180, 200, 140, angle, true, true, true);
+    
+    angle += dir;
+    if (angle > 1.4 || angle < 0.2) dir = -dir;
+    animationFrames.unitCircle3 = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_quadrants = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  const cx = 200, cy = 200, r = 150;
+  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Quadrant colors
+  const colors = ['rgba(46, 204, 113, 0.2)', 'rgba(231, 76, 60, 0.2)', 'rgba(155, 89, 182, 0.2)', 'rgba(52, 152, 219, 0.2)'];
+  for (let i = 0; i < 4; i++) {
+    ctx.fillStyle = colors[i];
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, -i * Math.PI / 2, -(i + 1) * Math.PI / 2, true);
+    ctx.closePath();
+    ctx.fill();
+  }
+  
+  // Axes
+  ctx.strokeStyle = '#666';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - r - 20, cy); ctx.lineTo(cx + r + 20, cy);
+  ctx.moveTo(cx, cy - r - 20); ctx.lineTo(cx, cy + r + 20);
+  ctx.stroke();
+  
+  // Circle
+  ctx.strokeStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.stroke();
+  
+  // Labels
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 20px sans-serif';
+  ctx.fillText('I', cx + 70, cy - 70);
+  ctx.fillText('II', cx - 90, cy - 70);
+  ctx.fillText('III', cx - 90, cy + 90);
+  ctx.fillText('IV', cx + 70, cy + 90);
+};
+
+function drawGraph(ctx, w, h, func, color, xMin, xMax, yMin, yMax, progress=1) {
+  const padding = 40;
+  const gw = w - 2 * padding;
+  const gh = h - 2 * padding;
+  
+  // Grid
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 1;
+  
+  // Y grid lines
+  for (let y = yMin; y <= yMax; y += 0.5) {
+    const py = padding + gh - (y - yMin) / (yMax - yMin) * gh;
+    ctx.beginPath();
+    ctx.moveTo(padding, py);
+    ctx.lineTo(w - padding, py);
+    ctx.stroke();
+  }
+  
+  // X grid lines (at π intervals)
+  const step = Math.PI / 2;
+  for (let x = Math.ceil(xMin / step) * step; x <= xMax; x += step) {
+    const px = padding + (x - xMin) / (xMax - xMin) * gw;
+    ctx.beginPath();
+    ctx.moveTo(px, padding);
+    ctx.lineTo(px, h - padding);
+    ctx.stroke();
+  }
+  
+  // Axes
+  ctx.strokeStyle = '#666';
+  ctx.lineWidth = 2;
+  const y0 = padding + gh - (0 - yMin) / (yMax - yMin) * gh;
+  const x0 = padding + (0 - xMin) / (xMax - xMin) * gw;
+  ctx.beginPath();
+  ctx.moveTo(padding, y0); ctx.lineTo(w - padding, y0);
+  ctx.moveTo(x0, padding); ctx.lineTo(x0, h - padding);
+  ctx.stroke();
+  
+  // Labels
+  ctx.fillStyle = '#888';
+  ctx.font = '12px sans-serif';
+  ctx.fillText('0', x0 - 15, y0 + 15);
+  ctx.fillText('π', padding + (Math.PI - xMin) / (xMax - xMin) * gw - 5, y0 + 15);
+  ctx.fillText('2π', padding + (2 * Math.PI - xMin) / (xMax - xMin) * gw - 10, y0 + 15);
+  ctx.fillText('-π', padding + (-Math.PI - xMin) / (xMax - xMin) * gw - 10, y0 + 15);
+  ctx.fillText('1', x0 - 20, padding + gh - (1 - yMin) / (yMax - yMin) * gh + 5);
+  ctx.fillText('-1', x0 - 25, padding + gh - (-1 - yMin) / (yMax - yMin) * gh + 5);
+  
+  // Function
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  let started = false;
+  const endX = xMin + (xMax - xMin) * progress;
+  for (let px = padding; px <= w - padding; px++) {
+    const x = xMin + (px - padding) / gw * (xMax - xMin);
+    if (x > endX) break;
+    const y = func(x);
+    if (Math.abs(y) > 10) { started = false; continue; }
+    const py = padding + gh - (y - yMin) / (yMax - yMin) * gh;
+    if (!started) { ctx.moveTo(px, py); started = true; }
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+}
+
+window.draw_sinGraph = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let progress = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGraph(ctx, 500, 350, Math.sin, '#e74c3c', -Math.PI, 2.5 * Math.PI, -1.5, 1.5, progress);
+    
+    // Mark extrema
+    if (progress > 0.3) {
+      ctx.fillStyle = '#2ecc71';
+      const px = 40 + (Math.PI / 2 + Math.PI) / (3.5 * Math.PI) * 420;
+      const py = 40 + 270 - (1 + 1.5) / 3 * 270;
+      ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.fillText('Max', px + 8, py - 5);
+    }
+    
+    progress += 0.008;
+    if (progress < 1) animationFrames.sinGraph = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_cosGraph = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let progress = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGraph(ctx, 500, 350, Math.cos, '#3498db', -Math.PI, 2.5 * Math.PI, -1.5, 1.5, progress);
+    progress += 0.008;
+    if (progress < 1) animationFrames.cosGraph = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_tanGraph = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let progress = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw asymptotes first
+    const padding = 40;
+    ctx.strokeStyle = '#e67e22';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 5]);
+    [-1.5, -0.5, 0.5, 1.5].forEach(k => {
+      const x = k * Math.PI;
+      const px = padding + (x + Math.PI) / (2.5 * Math.PI) * 370;
+      if (px > padding && px < canvas.width - padding) {
+        ctx.beginPath();
+        ctx.moveTo(px, padding);
+        ctx.lineTo(px, canvas.height - padding);
+        ctx.stroke();
+      }
+    });
+    ctx.setLineDash([]);
+    
+    drawGraph(ctx, 450, 350, Math.tan, '#e67e22', -Math.PI, 1.5 * Math.PI, -4, 4, progress);
+    progress += 0.008;
+    if (progress < 1) animationFrames.tanGraph = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_sinFromCircle = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let angle = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawUnitCircle(ctx, 175, 175, 130, angle, true, false, false);
+    angle += 0.02;
+    animationFrames.sinFromCircle = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_sinWave = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let angle = 0;
+  const points = [];
+  
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Store point
+    if (points.length > 200) points.shift();
+    points.push({ x: angle, y: Math.sin(angle) });
+    
+    // Draw axes
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(50, 175); ctx.lineTo(480, 175);
+    ctx.moveTo(50, 50); ctx.lineTo(50, 300);
+    ctx.stroke();
+    
+    // Draw wave
+    ctx.strokeStyle = '#e74c3c';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    points.forEach((p, i) => {
+      const px = 50 + (i / 200) * 420;
+      const py = 175 - p.y * 100;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+    
+    // Current point
+    const lastPoint = points[points.length - 1];
+    if (lastPoint) {
+      ctx.fillStyle = '#2ecc71';
+      ctx.beginPath();
+      ctx.arc(50 + 420, 175 - lastPoint.y * 100, 6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    angle += 0.03;
+    animationFrames.sinWave = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_sinCosCompare = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let progress = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGraph(ctx, 800, 300, Math.sin, '#e74c3c', -Math.PI, 3 * Math.PI, -1.5, 1.5, progress);
+    drawGraph(ctx, 800, 300, Math.cos, '#3498db', -Math.PI, 3 * Math.PI, -1.5, 1.5, progress);
+    
+    // Legend
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(650, 20, 20, 3);
+    ctx.fillText('sin x', 675, 25);
+    ctx.fillStyle = '#3498db';
+    ctx.fillRect(650, 40, 20, 3);
+    ctx.fillText('cos x', 675, 45);
+    
+    progress += 0.006;
+    if (progress < 1) animationFrames.sinCosCompare = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+// Parameter visualization functions
+function drawParamGraph(ctx, w, h, a, b, c, d, showOriginal=true) {
+  const padding = 40;
+  const gw = w - 2 * padding;
+  const gh = h - 2 * padding;
+  const xMin = -1, xMax = 4 * Math.PI, yMin = -3, yMax = 3;
+  
+  // Grid and axes
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 1;
+  for (let y = Math.ceil(yMin); y <= yMax; y++) {
+    const py = padding + gh - (y - yMin) / (yMax - yMin) * gh;
+    ctx.beginPath(); ctx.moveTo(padding, py); ctx.lineTo(w - padding, py); ctx.stroke();
+  }
+  
+  ctx.strokeStyle = '#666';
+  ctx.lineWidth = 2;
+  const y0 = padding + gh - (0 - yMin) / (yMax - yMin) * gh;
+  ctx.beginPath(); ctx.moveTo(padding, y0); ctx.lineTo(w - padding, y0); ctx.stroke();
+  
+  // Mittellinie
+  if (d !== 0) {
+    ctx.strokeStyle = '#f1c40f';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 5]);
+    const yd = padding + gh - (d - yMin) / (yMax - yMin) * gh;
+    ctx.beginPath(); ctx.moveTo(padding, yd); ctx.lineTo(w - padding, yd); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  
+  // Original sin
+  if (showOriginal) {
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let px = padding; px <= w - padding; px++) {
+      const x = xMin + (px - padding) / gw * (xMax - xMin);
+      const y = Math.sin(x);
+      const py = padding + gh - (y - yMin) / (yMax - yMin) * gh;
+      if (px === padding) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  
+  // Modified function
+  ctx.strokeStyle = '#e74c3c';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  for (let px = padding; px <= w - padding; px++) {
+    const x = xMin + (px - padding) / gw * (xMax - xMin);
+    const y = a * Math.sin(b * (x - c)) + d;
+    const py = padding + gh - (y - yMin) / (yMax - yMin) * gh;
+    if (px === padding) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+}
+
+window.draw_paramA = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let t = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const a = 1 + Math.sin(t) * 1;
+    drawParamGraph(ctx, 500, 350, a, 1, 0, 0);
+    
+    ctx.fillStyle = '#9b59b6';
+    ctx.font = '18px sans-serif';
+    ctx.fillText(`a = ${a.toFixed(2)}`, 400, 30);
+    
+    t += 0.02;
+    animationFrames.paramA = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_paramB = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let t = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const b = 1 + Math.sin(t) * 0.7;
+    drawParamGraph(ctx, 500, 350, 1, b, 0, 0);
+    
+    ctx.fillStyle = '#2ecc71';
+    ctx.font = '18px sans-serif';
+    ctx.fillText(`b = ${b.toFixed(2)}, T = ${(2 * Math.PI / b).toFixed(2)}`, 350, 30);
+    
+    t += 0.02;
+    animationFrames.paramB = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_paramC = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let t = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const c = Math.sin(t) * 2;
+    drawParamGraph(ctx, 500, 350, 1, 1, c, 0);
+    
+    ctx.fillStyle = '#1abc9c';
+    ctx.font = '18px sans-serif';
+    ctx.fillText(`c = ${c.toFixed(2)}`, 400, 30);
+    
+    t += 0.02;
+    animationFrames.paramC = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_paramD = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let t = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const d = Math.sin(t) * 1.5;
+    drawParamGraph(ctx, 500, 350, 1, 1, 0, d);
+    
+    ctx.fillStyle = '#f1c40f';
+    ctx.font = '18px sans-serif';
+    ctx.fillText(`d = ${d.toFixed(2)}`, 400, 30);
+    
+    t += 0.02;
+    animationFrames.paramD = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_allParams = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawParamGraph(ctx, 800, 350, 2, 2, Math.PI / 4, 1, true);
+  
+  // Labels
+  ctx.font = '14px sans-serif';
+  ctx.fillStyle = '#9b59b6'; ctx.fillText('a=2 (Amplitude)', 650, 50);
+  ctx.fillStyle = '#2ecc71'; ctx.fillText('b=2 (Periode=π)', 650, 70);
+  ctx.fillStyle = '#1abc9c'; ctx.fillText('c=π/4 (Phase)', 650, 90);
+  ctx.fillStyle = '#f1c40f'; ctx.fillText('d=1 (Mittellinie)', 650, 110);
+};
+
+window.draw_findParams1 = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawParamGraph(ctx, 450, 300, 1.5, 1, 0, 0.5, false);
+  
+  // Mark max/min
+  ctx.fillStyle = '#2ecc71';
+  ctx.beginPath(); ctx.arc(110, 60, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.fillText('Max (2)', 120, 55);
+  
+  ctx.fillStyle = '#e74c3c';
+  ctx.beginPath(); ctx.arc(215, 240, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.fillText('Min (-1)', 225, 245);
+  
+  // Mittellinie
+  ctx.strokeStyle = '#f1c40f';
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath(); ctx.moveTo(40, 150); ctx.lineTo(410, 150); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#f1c40f';
+  ctx.fillText('d = 0.5', 360, 145);
+};
+
+window.draw_findParams2 = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawParamGraph(ctx, 450, 300, 1, 1, 0, 0, false);
+  
+  // Mark period
+  ctx.strokeStyle = '#2ecc71';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(110, 50); ctx.lineTo(110, 80);
+  ctx.moveTo(320, 50); ctx.lineTo(320, 80);
+  ctx.moveTo(110, 65); ctx.lineTo(320, 65);
+  ctx.stroke();
+  
+  ctx.fillStyle = '#2ecc71';
+  ctx.fillText('T = 2π', 200, 60);
+};
+
+window.draw_findParams3 = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawParamGraph(ctx, 450, 300, 1, 1, 1, 0, false);
+  
+  // Mark phase point
+  ctx.fillStyle = '#1abc9c';
+  ctx.beginPath(); ctx.arc(75, 150, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.fillText('c = 1', 85, 145);
+  ctx.fillText('(Nullstelle mit', 85, 165);
+  ctx.fillText('positiver Steigung)', 85, 180);
+};
+
+window.draw_tanParams = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let progress = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const padding = 40;
+    ctx.strokeStyle = '#e67e22';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 5]);
+    [-0.5, 0.5, 1.5].forEach(k => {
+      const x = k * Math.PI;
+      const px = padding + (x + Math.PI / 2) / (2 * Math.PI) * 370;
+      ctx.beginPath();
+      ctx.moveTo(px, padding);
+      ctx.lineTo(px, canvas.height - padding);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    
+    drawGraph(ctx, 450, 300, Math.tan, '#e67e22', -Math.PI / 2, 1.5 * Math.PI, -4, 4, progress);
+    progress += 0.01;
+    if (progress < 1) animationFrames.tanParams = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_pythagoras = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let angle = 0.8;
+  let dir = 0.01;
+  
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const cx = 200, cy = 200, r = 150;
+    
+    // Circle
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // Axes
+    ctx.strokeStyle = '#444';
+    ctx.beginPath();
+    ctx.moveTo(cx - r - 20, cy); ctx.lineTo(cx + r + 20, cy);
+    ctx.moveTo(cx, cy - r - 20); ctx.lineTo(cx, cy + r + 20);
+    ctx.stroke();
+    
+    const px = cx + r * Math.cos(angle);
+    const py = cy - r * Math.sin(angle);
+    
+    // Right triangle
+    ctx.fillStyle = 'rgba(155, 89, 182, 0.2)';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(px, cy);
+    ctx.lineTo(px, py);
+    ctx.closePath();
+    ctx.fill();
+    
+    // Cos (base)
+    ctx.strokeStyle = '#3498db';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(px, cy);
+    ctx.stroke();
+    
+    // Sin (height)
+    ctx.strokeStyle = '#e74c3c';
+    ctx.beginPath();
+    ctx.moveTo(px, cy);
+    ctx.lineTo(px, py);
+    ctx.stroke();
+    
+    // Hypotenuse (radius = 1)
+    ctx.strokeStyle = '#2ecc71';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(px, py);
+    ctx.stroke();
+    
+    // Labels
+    ctx.font = '16px sans-serif';
+    ctx.fillStyle = '#3498db';
+    ctx.fillText('cos α', cx + (px - cx) / 2 - 20, cy + 20);
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillText('sin α', px + 10, cy - (cy - py) / 2);
+    ctx.fillStyle = '#2ecc71';
+    ctx.fillText('1', (cx + px) / 2 - 20, (cy + py) / 2 - 10);
+    
+    // Point
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(px, py, 5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Show values
+    ctx.fillStyle = '#fff';
+    ctx.font = '14px sans-serif';
+    const cosVal = Math.cos(angle).toFixed(3);
+    const sinVal = Math.sin(angle).toFixed(3);
+    const sum = (Math.cos(angle) ** 2 + Math.sin(angle) ** 2).toFixed(3);
+    ctx.fillText(`cos²α = ${(Math.cos(angle) ** 2).toFixed(3)}`, 10, 30);
+    ctx.fillText(`sin²α = ${(Math.sin(angle) ** 2).toFixed(3)}`, 10, 50);
+    ctx.fillText(`Summe = ${sum}`, 10, 70);
+    
+    angle += dir;
+    if (angle > 1.4 || angle < 0.3) dir = -dir;
+    animationFrames.pythagoras = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+window.draw_endCanvas = function(canvas) {
+  const ctx = canvas.getContext('2d');
+  let angle = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawUnitCircle(ctx, 150, 150, 100, angle, true, true, false);
+    angle += 0.02;
+    animationFrames.endCanvas = requestAnimationFrame(animate);
+  }
+  animate();
+};
+
+// Initialize
+showSlide(0);
+</script>
+</body>
+</html>
